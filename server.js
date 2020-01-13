@@ -45,7 +45,7 @@ app.set("port", port);
 
 const server = http.createServer(app);
 var io = require('socket.io').listen(server);
-
+clients=0;
 io.on('connection',(socket)=>{
 
     console.log('new connection made.');
@@ -74,8 +74,37 @@ io.on('connection',(socket)=>{
     socket.on('message',function(data){
 
        io.in(data.roomName).emit('new message',data);
+    });
+    socket.on('newFriend',function(data){
+       console.log(data);
+       io.in(data.id).emit('new Friend',data.data);
     })
+    socket.on('NewClient', function(roomName) {
+      console.log("plpll"); 
+          if(clients==0)
+          io.in(roomName).emit('CreatePeer');
+      clients++;
+    })
+    socket.on('Offer',SendOffer);
+    socket.on('Answer',SendAnswer);
+    socket.on('disconnect',Disconnect);
 });
+
+function SendOffer(offer) {
+  console.log(offer.roomName);
+  io.in(offer.roomName).emit('BackOffer',offer.data);
+}
+
+function SendAnswer(data) {
+  console.log(data.roomName);
+  io.in(data.roomName).emit('BackAnswer',data.data);
+}
+
+function Disconnect(roomName) {
+  console.log(roomName);
+  io.in(roomName).emit('callOver');
+  clients = 0;
+}
 
 server.on("error", onError);
 server.on("listening", onListening);

@@ -66,6 +66,7 @@ const userAuthHandler = {
         } else {
           console.log("hello");
           fetchedUser = user;
+          console.log(user.password);
           return bcrypt.compare(req.body.password, user.password);
         }
       })
@@ -131,6 +132,18 @@ const userAuthHandler = {
       image:req.body.image,
       about:req.body.about
     }]}}).then(result =>{
+         User.findOne({_id:req.user.userId}).then(user => {
+           let userData = user;
+           User.updateOne({_id:req.body.id},{$push :{friends : [{
+            id : req.user.userId,
+            name:userData.name,
+            email:userData.email,
+            image:userData.image,
+            about:userData.about
+          }]}}).then(result => {
+            console.log(result);
+          })
+         })
          res.status(200).json({
            message:"Added successfully"
          })

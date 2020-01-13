@@ -7,6 +7,7 @@ const ChatSchema = mongoose.Schema({
 	receiver:{type:String},
 	message : {type : String},
 	status:{type:String,default:'Notseen'},
+	isFile:{type:Boolean,required:true},
 	time:{type:String,default:moment().format('LLL')}}],
 	roomName : {type:String,required:true,unique:true}
 });

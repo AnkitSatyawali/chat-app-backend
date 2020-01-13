@@ -21,6 +21,7 @@ err => {
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 app.use('/profilepics',express.static('profilepics'));
+app.use('/files',express.static('files'));
 app.use(express.static('files'));app.use((req,res,next) => {
     res.setHeader("Access-Control-Allow-Origin","*");
     res.setHeader("Access-Control-Allow-Headers",

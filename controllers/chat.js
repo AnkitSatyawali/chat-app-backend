@@ -1,16 +1,39 @@
 const Chat = require('../models/chat');
+const User = require('../models/user');
+const fs = require('fs-extra');
 
 const chatHandler = {
     send: async(req,res) => {
     	console.log(req.body)
     	const result = await Chat.findOne({roomName : req.body.roomName});
-    	if(!result){
+      const presentUser = await User.findOne({_id:req.user.userId});
+    	if(result.messages.length === 0)
+      {
+        User.updateOne({_id:req.body.receiver},{$push :{friends : [{
+            id : presentUser._id,
+            name:presentUser.name,
+            email:presentUser.email,
+            image:presentUser.image,
+            about:presentUser.about
+          }]}}).then(result =>{
+               res.status(200).json({
+                 message:"Added successfully"
+               })
+          }).catch(err =>{
+            res.status(401).json({
+              message:"There is an error"
+            })
+          })
+      }
+      if(!result){
+        console.log(result);
     	const chat = new Chat({
     		messages : {
     		sender : req.user.userId,
     		receiver : req.body.receiver,
     	    message : req.body.message,
-    	    time : req.body.time
+    	    time : req.body.time,
+          isFile : req.body.isFile
     	},
     	roomName : req.body.roomName
     	})
@@ -34,8 +57,9 @@ const chatHandler = {
       			sender:req.user.userId,
       			receiver : req.body.receiver,
       			message : req.body.message,
-      			time : req.body.time
-      		}]}}).then(result => {
+      			time : req.body.time,
+            isFile : req.body.isFile      		
+          }]}}).then(result => {
     		res.status(200).json({
     			message:result
     		})
@@ -70,6 +94,19 @@ const chatHandler = {
           data:"There is some error"
         })
       })
+    },
+    sendFile: async(req,res) => {
+      let i=0;
+      let filesArray=[];
+      console.log(req.files);
+      for(i=0;i<req.files.length;i++)
+      {
+        fs.move('./files/' + req.files[i].filename, './files/' + req.body.roomName + '/' + req.files[i].filename);
+        filesArray[i] = 'files/'+req.body.roomName+'/'+req.files[i].filename;
+      }
+      res.status(201).json({
+        files:filesArray
+      });
     }
 }
 //5d4966124d2ce926b4849169 AnkitSatyawali
