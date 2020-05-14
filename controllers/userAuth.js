@@ -6,6 +6,9 @@ const config = require("../config/database");
 const fs = require('fs-extra');
 
 const userAuthHandler = {
+  signupin:(req,res,next) =>{
+    
+  },
 	signup: (req, res, next) => {
     const {name,email,password} = req.body
     User.findOne({email}).then(result => {
