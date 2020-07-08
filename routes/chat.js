@@ -14,10 +14,12 @@ const storage = multer.diskStorage({
 		cb(null,uuidv4()+file.originalname.split(" ").join(""));
 	}
 });
-var upload = multer({ storage : storage });
+var upload = multer({ storage : storage,
+                  limits:
+        {fileSize: 1024 * 1024 * 25}});
 
 router.post('/sendMessage',checkAuth,chatHandler.send);
 router.get('/getMessge/:roomName',checkAuth,chatHandler.getAll);
 router.post('/update',checkAuth,chatHandler.update);
-router.post('/sendFile',upload.array('files',100),chatHandler.sendFile);
+router.post('/sendFile',checkAuth,upload.array('files',30),chatHandler.sendFile);
 module.exports = router;

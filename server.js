@@ -42,9 +42,29 @@ const onListening = () => {
 
 const port = normalizePort(process.env.PORT || "4000");
 app.set("port", port);
-
 const server = http.createServer(app);
+// else{
+// const server = http.createServer({
+//   key: fs.readFileSync(
+//      process.env.SSL_PDT_KEY || '/etc/nginx/ssl/domain.key'
+//   ),
+//   cert: fs.readFileSync(
+//      process.env.SSL_PDT_CRT || '/etc/nginx/ssl/domain.crt'
+//   ),
+//   ca: fs.readFileSync(
+//      process.env.SSL_PDT_CA || '/etc/nginx/ssl/domain.ca-bundle'
+//   ),
+//   requestCert: true,
+//   rejectUnauthorized: false
+// },app);
+// }
 var io = require('socket.io').listen(server);
+server.on("error", onError);
+server.on("listening", onListening);
+console.log(port);
+server.listen(port);
+
+
 clients=0;
 io.on('connection',(socket)=>{
 
@@ -106,7 +126,3 @@ function Disconnect(roomName) {
   clients = 0;
 }
 
-server.on("error", onError);
-server.on("listening", onListening);
-console.log(port);
-server.listen(port);

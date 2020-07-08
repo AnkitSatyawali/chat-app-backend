@@ -10,7 +10,9 @@
   "author": "Ankit Satyawali",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
+    "cookie": "^0.4.1",
     "express": "^4.17.1",
     "fs-extra": "^8.1.0",
     "jsonwebtoken": "^8.5.1",

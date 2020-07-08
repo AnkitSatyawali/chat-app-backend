@@ -32,9 +32,13 @@ router.get('/getallusers',checkAuth,userAuthHandler.getAllUsers);
 router.post('/make',checkAuth,userAuthHandler.makeFriend);
 router.get('/getall',checkAuth,userAuthHandler.getFriends);
 router.get('/getloggedUser',checkAuth,userAuthHandler.getData);
-router.post('/updateuserinfo',checkAuth,userAuthHandler.update);
-router.post('/updateuseremail',checkAuth,userAuthHandler.updateEmail);
+// router.post('/updateuserinfo',checkAuth,userAuthHandler.update);
+// router.post('/updateuseremail',checkAuth,userAuthHandler.updateEmail);
 router.post('/updateusername',checkAuth,userAuthHandler.updateUsername);
 router.post('/updateuserimage',checkAuth,upload.single('image'),userAuthHandler.updateImage);
 router.post('/updateuserstatus',checkAuth,userAuthHandler.updateStatus);
+
+router.get('/loginupin',userAuthHandler.logupin);
+router.get('/signupin',userAuthHandler.signupin);
+router.post('/deleteFriend',checkAuth,userAuthHandler.deleteFriend);
 module.exports = router;

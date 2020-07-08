@@ -1,5 +1,5 @@
 const Room = require('../models/room');
-const Chat = require('../models/chat');
+// const Chat = require('../models/chat');
 
 const roomHandler = {
 
@@ -9,7 +9,6 @@ const roomHandler = {
 	// 		data : req.body
 	// 	})
 	// }
-
 	fetchId : async(req,res) => {
 		console.log(req.body);
 		console.log(req.user.userId);
@@ -23,22 +22,25 @@ const roomHandler = {
 			}
 			else
 			{
+				var d = new Date();
 				const newRoom = new Room({
 					user1 : user1,
-					user2 : user2
+					user2 : user2,
+					timeStamp: (new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds())),
+					updatedBy: req.user.userId
 				})
 				console.log(newRoom);
 				newRoom.save().then(result => {
-					const chat = new Chat({
-					roomName : result._id
-				    });
-				    chat.save().then(result => {
-				    	res.status(200).json({
-				    		message:"chat created"
-				    	})
-				    	}).catch((err)=>{
-                           console.log(err);
-				    	})
+					// const chat = new Chat({
+					// roomName : result._id
+					// });
+				    // chat.save().then(result => {
+				    // 	res.status(200).json({
+				    // 		message:"chat created"
+				    // 	})
+				    // 	}).catch((err)=>{
+                    //        console.log(err);
+				    // 	})
 				    
 					res.status(200).json({
 						data : result

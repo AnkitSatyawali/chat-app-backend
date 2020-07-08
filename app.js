@@ -2,11 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
+
 const config = require('./config/database');
 const loginRoutes = require('./routes/userAuth');
 const roomRoutes = require('./routes/room');
 const chatRoutes = require('./routes/chat.js');
-const friendRoutes = require('./routes/friend.js');
+// const friendRoutes = require('./routes/friend.js');
 const app = express();
 
 mongoose.connect(config.database,{useNewUrlPaser: true})
@@ -33,5 +34,5 @@ app.use(express.static('files'));app.use((req,res,next) => {
 app.use('/userAuth',loginRoutes);
 app.use('/rooms',roomRoutes);
 app.use('/chats',chatRoutes);
-app.use('/friends',friendRoutes);
+// app.use('/friends',friendRoutes);
 module.exports = app;

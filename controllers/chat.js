@@ -1,43 +1,39 @@
-const Chat = require('../models/chat');
+const Chat = require('../models/room');
 const User = require('../models/user');
 const fs = require('fs-extra');
 
 const chatHandler = {
     send: async(req,res) => {
     	console.log(req.body)
-    	const result = await Chat.findOne({roomName : req.body.roomName});
+    	const result = await Chat.findOne({_id : req.body.roomName});
       const presentUser = await User.findOne({_id:req.user.userId});
-    	if(result.messages.length === 0)
-      {
-        User.updateOne({_id:req.body.receiver},{$push :{friends : [{
+    	if(result.updatedBy===req.user.userId && result.messages.length === 0)
+      { 
+        await User.updateOne({_id:req.body.receiver},{$push :{friends : [{
             id : presentUser._id,
-            name:presentUser.name,
-            email:presentUser.email,
-            image:presentUser.image,
-            about:presentUser.about
-          }]}}).then(result =>{
-               res.status(200).json({
-                 message:"Added successfully"
-               })
-          }).catch(err =>{
-            res.status(401).json({
-              message:"There is an error"
-            })
-          })
+            roomName:req.body.roomName
+          }]}})
       }
-      if(!result){
-        console.log(result);
-    	const chat = new Chat({
-    		messages : {
+    	const chat = {
     		sender : req.user.userId,
     		receiver : req.body.receiver,
     	    message : req.body.message,
     	    time : req.body.time,
-          isFile : req.body.isFile
-    	},
-    	roomName : req.body.roomName
-    	})
-    	chat.save().then(result => {
+          isFile : req.body.isFile,
+          timeStamp: req.body.timeStamp
+      }
+      var d =new Date();
+      Chat.updateOne({_id:req.body.roomName},
+        {$push :{messages : [{
+          sender : req.user.userId,
+          receiver : req.body.receiver,
+            message : req.body.message,
+            time : req.body.time,
+            isFile : req.body.isFile,
+            timeStamp:req.body.timeStamp
+        }]},
+        $set:{updatedBy:req.user.userId,state: 1,timeStamp:(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()))}}).then(result => {
+          console.log(result);
     		res.status(200).json({
     			message:"Message send successfully",
     			data : result
@@ -48,51 +44,55 @@ const chatHandler = {
     			message : "There is some error"
     		})
     	})
-      }
-      else
-      {
-      	
-      	Chat.updateOne({roomName : req.body.roomName},{$push : {messages:[
-      		{
-      			sender:req.user.userId,
-      			receiver : req.body.receiver,
-      			message : req.body.message,
-      			time : req.body.time,
-            isFile : req.body.isFile      		
-          }]}}).then(result => {
-    		res.status(200).json({
-    			message:result
-    		})
-    	}).catch(err => {
-    		console.log(err);
-    		res.status(401).json({
-    			message : "Having some problem"
-    		})
-    	})
-      }
     },
     getAll : (req,res) => {
-    	console.log(req.params.roomName);
-    	Chat.findOne({roomName : req.params.roomName}).then(result => {
+      var token = req.params.roomName;
+      var resp = token.split("&&");
+    	console.log(token);
+      let skp = -1*20*resp[1];
+      console.log(resp[2])
+    	Chat.findOne({_id: resp[0]},{messages: {$slice:[skp,20]}}).then(result => {
+        // console.log(result);
+        if(resp[2])
+        {
+          let i;
+          for(i=result.messages.length-1;i>=0;i--)
+          {
+            console.log('pp')
+            if(result.messages[i].timeStamp.getTime()>=new Date(resp[2]).getTime())
+              result.messages.pop();
+          }
+        }
     		res.status(200).json({
     			data : result.messages
     		})
     	}).catch(err => {
+        console.log(err);
     		res.status(401).json({
     			data : "There is some error"
     		})
     	})
     },
     update: (req,res) => {
-      Chat.updateMany({roomName : req.body.roomName,'messages.status':'Notseen'},{$set:{'messages.$[elem].status':'seen'}},{ "arrayFilters": [{ "elem.status": 'Notseen' }], "multi": true }).then(result => {
-        res.status(200).json({
-          data:result
-        })
-      }).catch(err =>{
-        console.log(err);
-        res.status(400).json({
-          data:"There is some error"
-        })
+      Chat.findOne({_id:req.body.roomName}).then(result => {
+        if(req.user.userId!=result.updatedBy)
+          {
+            Chat.updateOne({_id : req.body.roomName},{$set:{updatedBy:req.user.userId,state:0}}).then(result => {
+              res.status(200).json({
+                data:result
+              })
+            }).catch(err =>{
+              console.log(err);
+              res.status(400).json({
+                data:"There is some error"
+              })
+            })
+          }
+          else{
+            res.status(200).json({
+              data:"No need to update"
+            })
+          }
       })
     },
     sendFile: async(req,res) => {
