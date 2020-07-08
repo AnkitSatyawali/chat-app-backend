@@ -4,7 +4,7 @@ var moment = require('moment');
 
 const UserSchema = mongoose.Schema({
     name : {type:String,required:true},
-    password : {type:String,required:true},
+    // password : {type:String,required:true},
     about : {type:String,default:"Hey! i am using gitforker"},
     background :{type:String},
     email : {type:String,required:true,unique:true},
