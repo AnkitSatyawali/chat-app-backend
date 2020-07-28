@@ -18,7 +18,7 @@ const userAuthHandler = {
       client_secret: config.clientSecret,
       code: req.query.code
     };
-    
+    console.log(body);
     const opts = { headers: { accept: 'application/json' } };
     axios.post(`https://github.com/login/oauth/access_token`,body,opts).then((response) => {
       // console.log(response.data.access_token);
